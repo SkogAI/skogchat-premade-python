@@ -2,7 +2,6 @@
 *.json
 *.txt
 !requirements.txt
-config.toml
 __pycache__
 chats
 test*

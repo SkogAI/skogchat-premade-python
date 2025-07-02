@@ -22,14 +22,14 @@ prompt = true
 [chat.features]
 model_selector = false
 adjust_temperature = false
-role_selector = false
+role_selector = true
 save_chat_on_exit = true
-continue_chat = false
+continue_chat = true
 debug = false
-disable_intro_help_message = false
-assistant_mode = false
+disable_intro_help_message = true
+assistant_mode = true
 ai_managed = false
-streaming = false
+streaming = true
 mcp_client = true
 
 [chat.roles]

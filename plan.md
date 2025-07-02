@@ -15,10 +15,10 @@
 
 Goal:
 
-- Receive messages from multiple external agents/sources
+- Receive a message via cli input which gets added to the existing system for now
 - Each message comes with an identifier/name (instead of just "assistant")
 - Display these in your existing chat interface, just changing "assistant" to the actual sender name
-- Add a CLI command like skogcli agent send "Hello Claude" --agent claude to inject messages
+- Being able to send a string to any cli endpoint like so: foo <message> --name <name>
 
 Key Constraints:
 
@@ -31,14 +31,19 @@ Quick Clarification Questions
 1. Message injection format: When you run skogcli agent send "Hello Claude" --agent claude, should this:
    - Add a message to the current active conversation?
    - Or create/append to a specific conversation file?
+     This is already implemented. You will need to be able to _call_ the command above with the variables being name and content which will be what my/users messages will be send to.
 
 2. Message display: In the chat interface, should messages from different agents be:
    - Visually distinguished (different colors/formatting)?
    - Or just show the name and keep everything else the same?
+     If you actually get the actual basic functionality in you may add this later as much as you like - until then this is considered WAY out of scope
 
 3. Message structure: Should the JSON message format become:
    {"role": "assistant", "content": "message", "name": "claude"}
+   i think actually - if possible - this would be a good idea for actual thinking ahead as well as proving that this is possible
 4. Or do you prefer a different structure?
+   if adding a extra name-identifier it would be helpful but only if possible
 5. Backwards compatibility: Should existing chats with generic "assistant" messages still work normally?
-
-This sounds like a fairly straightforward extension - mainly adding a CLI command parser and updating the display logic to show sender names. Does this match your vision?
+   no
+   This sounds like a fairly straightforward extension - ...
+   if this is what you thought then we have a lot of planning to do to make sure you know what you are doing :)

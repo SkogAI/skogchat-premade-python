@@ -1,0 +1,7 @@
+{"role": "user", "content": "test", "name": "you"}
+{"role": "user", "content": "save", "name": "you"}
+{"role": "user", "content": "save", "name": "you"}
+{"role": "user", "content": "Hello", "name": "you"}
+{"role": "user", "content": "help", "name": "you"}
+{"role": "assistant", "content": "Test message", "name": "claude"}
+{"role": "user", "content": "hello", "name": "you"}

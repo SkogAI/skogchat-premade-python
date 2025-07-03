@@ -10,3 +10,4 @@ assistants
 app-data/local_*
 venv
 config.toml
+.llm-context

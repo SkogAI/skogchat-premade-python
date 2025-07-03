@@ -11,6 +11,7 @@ from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.url_prompt import additional_info, input_url
 from console_gpt.scrape_page import page_content
+from console_gpt.config_manager import fetch_variable
 
 
 def command_handler(model_title, model_name, user_input, conversation, cached, tools) -> Optional[str]:
@@ -110,6 +111,27 @@ def command_handler(model_title, model_name, user_input, conversation, cached, t
                 )
                 return "continue"
             return upload_image(model_title)
+        case "broadcast" | "multi":
+            if not fetch_variable("features", "multi_agent"):
+                custom_print("error", "Multi-agent mode is disabled. Enable it in settings or config.toml")
+                return "continue"
+            return "multi_agent_broadcast"
+        case "chain":
+            if not fetch_variable("features", "multi_agent"):
+                custom_print("error", "Multi-agent mode is disabled. Enable it in settings or config.toml")
+                return "continue"
+            return "multi_agent_chain"
+        case "groups":
+            if not fetch_variable("features", "multi_agent"):
+                custom_print("error", "Multi-agent mode is disabled. Enable it in settings or config.toml")
+                return "continue"
+            from console_gpt.multi_agent import MultiAgentHandler
+            handler = MultiAgentHandler()
+            groups = handler.get_agent_groups()
+            custom_print("info", "Available agent groups:")
+            for group_name, models in groups.items():
+                custom_print("info", f"  {group_name}: {', '.join(models)}")
+            return "continue"
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)
 

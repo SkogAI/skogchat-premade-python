@@ -1,121 +1,180 @@
-# CLAUDE.md
+# Claude Code Development Guidelines
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Session Management System
 
-## Project Overview
+### Health Check Protocol
+When starting ANY conversation, immediately perform a health check to establish session state:
+1. Check for existing session state in `.claude/session/current-session.yaml`
+2. Initialize or update session health tracking
+3. Set appropriate mode based on task type
+4. Track scope of work (MICRO/SMALL/MEDIUM/LARGE/EPIC)
 
-This is **skogai** (console-chat-gpt v6), a CLI tool for chatting with multiple AI models including OpenAI, Anthropic, Mistral, xAI, Google AI, DeepSeek, Alibaba, Inception, and Ollama-hosted models. It's built on Python and uses the `unichat` library for unified chat completion across providers.
+### Session Health Indicators
+- 🟢 **Healthy** (0-30 messages): Normal operation
+- 🟡 **Approaching** (31-45 messages): Plan for handover
+- 🔴 **Handover Now** (46+ messages): Immediate handover required
 
-## Development Commands
+### Command Triggers
+- `<Health-Check>` - Display current session health and metrics
+- `<Handover01>` - Generate handover document for session continuity
+- `<Session-Metrics>` - View detailed session statistics
+- `MODE: [DEBUG|BUILD|REVIEW|LEARN|RAPID]` - Switch response mode
+- `SCOPE: [MICRO|SMALL|MEDIUM|LARGE|EPIC]` - Set work complexity
 
-### Installation and Setup
-```bash
-# Install dependencies (use uv if available, otherwise pip3)
-pip3 install -r requirements.txt
+### Automatic Behaviors
+1. **On Session Start**: Run health check, load previous state if exists
+2. **Every 10 Messages**: Background health check with warnings
+3. **On Mode Switch**: Update session state and load mode-specific guidelines
+4. **On Health Warning**: Suggest natural breakpoints for handover
 
-# Copy sample config (done automatically on first run)
-cp config.toml.sample config.toml
+### Session State Management
+Session state is stored in `.claude/session/current-session.yaml` and includes:
+- Health status and message count
+- Current mode and scope
+- Active task (JIRA ID, phase, progress)
+- Context (current file, branch, etc.)
 
-# Run the application
-python3 main.py
+When health reaches 🟡, proactively:
+1. Complete current logical unit of work
+2. Update todo list with completed items
+3. Prepare handover documentation
+4. Save all session state for seamless resume
+
+## Team Configuration
+
+When starting a session, check for team-specific configuration files in `.claude/config/`:
+- **team-config.yaml** - Contains team size, project type, technology stack, and coding standards
+- **workflow-config.yaml** - Defines branching strategy, PR requirements, and deployment settings
+- **customization-summary.md** - Summary of all team customizations
+
+If these files don't exist, inform the user:
+```
+No team configuration found. To customize Claude Code for your team:
+Run: ./scripts/customize-framework.sh
+Or copy .claude/config/default-config.yaml to team-config.yaml and edit manually.
 ```
 
-### Development Workflow
-```bash
-# Run the application directly
-python3 main.py
+These configurations provide context about the team's specific workflows and should be considered when making suggestions or implementing features.
 
-# For development, create a symlink or alias to run from anywhere
-# The 'run' file in the root appears to be a convenience script
-```
+## Technology-Specific Best Practices
 
-### Configuration Management
-```bash
-# Edit main configuration
-config.toml  # Contains all model configurations, API keys, and feature flags
+When working on projects/tasks, load the appropriate technology-specific best practices file. These files provide comprehensive defaults but can and should be customized to match your team's specific workflows, coding standards, and project requirements.
 
-# Edit MCP server configuration  
-mcp_config.json  # Based on claude_desktop_config.json format
-```
+**For detailed instructions on customizing best practices, see: `.claude/guides/customization-guide.md`**
+- **Node.js**: `.claude/best_practices/nodejs-best-practices.md`
+- **Python**: `.claude/best_practices/python-best-practices.md`
+- **PHP**: `.claude/best_practices/php-best-practices.md`
+- **Java**: `.claude/best_practices/java-best-practices.md`
+- **Angular**: `.claude/best_practices/angular-best-practices.md`
+- **ApostropheCMS**: `.claude/best_practices/apostrophe-best-practices.md`
+- **Docker**: `.claude/best_practices/docker-best-practices.md`
+- **API Design**: `.claude/best_practices/api-design-best-practices.md`
+- **Database**: `.claude/best_practices/database-best-practices.md`
+- **Security**: `.claude/best_practices/security-best-practices.md`
+- **Logging & Monitoring**: `.claude/best_practices/logging-monitoring-best-practices.md`
+- **MCP Tools**: `.claude/best_practices/mcp-best-practices.md`
 
-## Architecture Overview
+## JIRA Integration
 
-### Core Components
+- Use `.claude/commands/jira.md` for JIRA task management
+- When a task number is provided (e.g., `jira VCT234`), pass it as an argument
 
-**Main Entry Point** (`main.py`):
-- Initializes console, sets locale, checks config version
-- Handles the main application loop with AI managed mode support
-- Routes between chat and assistant modes based on user selection
+## Git Workflow
 
-**Chat System** (`console_gpt/chat.py`):
-- Main chat interface using the `unichat` library for unified API calls
-- Supports streaming and non-streaming responses
-- Integrates with MCP (Model Context Protocol) servers
-- Handles model parameter validation and error management
+1. **Branch Creation**: Always create a branch with the format `{TASK-ID}` (e.g., `VCS-234`) based on the task identifier
+2. **Committing**: Only commit when explicitly requested. When committing:
+   - Include clear commit messages explaining the changes
+   - Update relevant READMEs or changelogs with implementation details
 
-**Assistant System** (`console_gpt/assistant.py`):
-- OpenAI Assistants API integration
-- Thread-based conversations with persistent context
-- Separate command handling for assistant-specific features
+## Implementation Process
 
-**Configuration Management** (`console_gpt/config_manager.py`):
-- TOML-based configuration with automatic sample file copying
-- Handles API keys, model parameters, and feature flags
-- Version checking and migration support
+1. **Session Initialization** (ALWAYS FIRST):
+   - Perform health check to establish session state
+   - Load or create session in `.claude/session/current-session.yaml`
+   - Set initial mode based on task type (bug fix = DEBUG, new feature = BUILD)
+   - If resuming, load handover documentation
 
-**Menu System** (`console_gpt/menus/`):
-- Modular menu architecture with combined_menu as the main orchestrator
-- Separate menus for models, roles, settings, assistants, and tools
-- Command handler for in-chat commands and shortcuts
+2. **Load Team Configuration**: Check `.claude/config/team-config.yaml` and `.claude/config/workflow-config.yaml` to understand team preferences. If not found, use defaults but suggest running `./scripts/customize-framework.sh`
 
-**Model Context Protocol (MCP)** (`mcp_servers/`):
-- TCP server/client implementation for MCP protocol
-- Server manager for starting/stopping MCP servers
-- Integrates with existing MCP server configurations
+3. **Read Task Specifications**: Always start by reading `/tasks/{{JIRA_TASK_ID}}/{{JIRA_TASK_ID}}-specs.md`
 
-### Key Dependencies
+4. **Create Implementation Plan**: Create `/tasks/{{JIRA_TASK_ID}}/{{JIRA_TASK_ID}}-IMPLEMENTATION.md` for review and approval
+   - Include session breakpoints for LARGE/EPIC scopes
+   - Plan natural handover points between major components
 
-- **unichat (~4.1.16)**: Unified chat completion library (core functionality)
-- **rich (~13.7.0)**: Terminal formatting and progress displays
-- **questionary (~2.0.1)**: Interactive prompts and menus
-- **mcp (~1.1.2)**: Model Context Protocol implementation
-- **toml (~0.10.2)**: Configuration file parsing
+5. **Track Changes**: 
+   - Create `claude_code_changes/` directory if it doesn't exist
+   - For each session, create `claude_changes_{YYYY-MM-DD_HH-MM}.txt`
+   - Begin the file with the current Git branch name and TaskID if exist
+   - Document all changes made during the session
+   - Update session state after significant milestones
 
-### Configuration Structure
+## Test-Driven Development (TDD)
 
-The `config.toml` file contains:
-- `[chat.defaults]`: Default model, temperature, and system role
-- `[chat.features]`: Feature flags for different functionality
-- `[chat.managed]`: AI managed mode settings with model assignments
-- `[chat.roles]`: Predefined system roles for different use cases
-- `[chat.models.*]`: Individual model configurations with API keys and parameters
+1. **Test Structure**: Use the `tests/` folder to maintain organized test files
+2. **Test Creation Process**:
+   - Write tests based on expected input/output pairs
+   - Request clarification on test details when needed
+   - Run tests to confirm they fail before implementing
+3. **Implementation**:
+   - Only write implementation code after tests are created
+   - Do not modify tests during implementation
+   - Continue until all tests pass
+   - Use subagents when needed for complex tasks
+4. **Interface Testing**:
+   - Use Browser MCP for interface testing
+   - Capture screenshots with Puppeteer MCP server
 
-### Data Flow
+## Design Development
 
-1. **Initialization**: Load config, check version, display intro
-2. **Mode Selection**: AI managed mode vs manual model selection
-3. **Chat/Assistant Routing**: Based on user choice, route to appropriate handler
-4. **Model Interaction**: Use unichat library for API calls with streaming support
-5. **Command Processing**: Handle in-chat commands via command_handler
-6. **MCP Integration**: Optional MCP server communication for enhanced capabilities
+- Implement designs according to provided mockups
+- Take screenshots using Puppeteer MCP server
+- Iterate until the implementation matches the design mockup
 
-### Testing and Validation
+## Code Quality Checks
 
-Currently uses basic Python error handling and exception management. No formal test suite detected - testing appears to be manual through the CLI interface.
+1. Run the lint command for the project
+2. Create a Markdown checklist of all errors with:
+   - Filename
+   - Line number
+   - Error description
+3. Fix issues systematically:
+   - Address one issue at a time
+   - Verify each fix before proceeding
+   - Check off completed items in the checklist
 
-### Special Features
+## Respecting Team Preferences
 
-- **AI Managed Mode**: Automatically selects optimal model based on query complexity
-- **MCP Integration**: Supports Model Context Protocol servers for extended capabilities
-- **Multi-Provider Support**: Unified interface across 8+ AI providers
-- **Assistant Mode**: Full OpenAI Assistants API integration with persistent threads
-- **Image Processing**: Support for image inputs with compatible models
-- **Conversation History**: Save/load chat sessions with metadata
+When team configuration files exist in `.claude/config/`:
+- Use the specified indentation style (spaces vs tabs, 2 vs 4 spaces)
+- Follow the team's naming conventions (camelCase, snake_case, etc.)
+- Respect maximum line length settings
+- Apply the team's testing approach and coverage requirements
+- Follow the configured branching strategy and PR review process
+- Consider industry-specific requirements (healthcare, finance, etc.)
 
-## Important Notes
+## API Development
 
-- API keys are stored in `config.toml` - ensure this file is properly secured
-- The application supports both streaming and non-streaming responses
-- MCP server configuration is optional but provides enhanced capabilities
-- Temperature and model selection can be configured per-session or globally
-- The application handles graceful shutdown with conversation saving
+- Follow OpenAPI/Swagger specifications in `.claude/best_practices/api-design-best-practices.md`
+- Implement RESTful best practices
+- Document all endpoints with request/response examples
+
+## Database Design
+
+- Reference `.claude/best_practices/database-best-practices.md` for SQL/NoSQL guidelines
+- Follow migration strategies and naming conventions
+- Implement proper indexing and query optimization
+
+## Security Implementation
+
+- Follow OWASP compliance checklist in `.claude/best_practices/security-best-practices.md`
+- Integrate security scanning into CI/CD pipeline
+- Implement proper authentication and authorization
+
+## Logging and Monitoring
+
+- Follow standards in `.claude/best_practices/logging-monitoring-best-practices.md`
+- Environment-specific logging:
+  - **Development**: Console and error log output for debugging
+  - **Production**: No console output, only error logs unless explicitly configured
+- Set up performance monitoring and alerting

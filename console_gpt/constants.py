@@ -14,6 +14,9 @@ help_options = {
     "chats": "Manage chats",
     "settings": "Manage available features.",
     "browser": "Scrapes a given page and use the content as input.",
+    "broadcast": "Send your message to multiple AI agents simultaneously.",
+    "chain": "Send your message through multiple AI agents sequentially.",
+    "groups": "List available agent groups for multi-agent operations.",
 }
 
 style = Style(

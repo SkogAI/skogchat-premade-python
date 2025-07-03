@@ -37,6 +37,15 @@ assistant_mode = true
 ai_managed = true
 streaming = false
 mcp_client = true
+multi_agent = true
+
+[chat.groups]
+coding_team = ["gpt-4o", "anthropic-sonnet-3", "deepseek-chat", "o4-mini"]
+research_team = ["gpt-41", "anthropic-sonnet-4", "gemini-pro", "qwen-max"]
+creative_team = ["gpt-4o", "anthropic-opus-4", "mistral-large", "grok-3"]
+analysis_team = ["o3", "anthropic-sonnet-4", "qwen-max", "deepseek-reasoner"]
+quick_team = ["gpt-41-mini", "anthropic-haiku", "gemini-flash", "grok-3-mini"]
+reasoning_team = ["o3", "o3-mini", "deepseek-reasoner", "qwq-plus"]
 
 [chat.roles]
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."

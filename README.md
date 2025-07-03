@@ -1,175 +1,290 @@
-<div align="center">
+# Claude Code Development Framework
 
-<h1>
+A comprehensive development framework and best practices collection for working with Claude Code on various technology stacks.
 
-console-chat-gpt v6
+## Overview
 
-</h1>
+This repository contains structured guidelines, best practices, and tools for efficient software development with Claude Code. It provides technology-specific guidance, workflow automation, and quality assurance processes.
 
-**Your Ultimate CLI Companion for Chatting with AI Models**
+### 🚀 New: Session Management System
 
-_Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xAI**, **Google AI**, **DeepSeek**, **Alibaba**, **Inception** or **Ollama**-hosted models directly from your command line. </br>Elevate your chat experience with efficiency and ease._
+The framework now includes an intelligent session management system that:
+- **Prevents conversation limit issues** with health monitoring (🟢 Healthy → 🟡 Approaching → 🔴 Handover)
+- **Enables seamless handovers** between Claude sessions
+- **Tracks work context** including mode, scope, and task progress
+- **Integrates with existing workflow** for continuous development
 
-<h3>
+Try it: Start any conversation with `<Health-Check>` to see session status!
 
-[Homepage](https://github.com/amidabuddha/consoleChatGPT) | [Examples](/examples)
+## 📚 Documentation
 
-</h3>
+**NEW**: All documentation is now organized and indexed. Visit [`docs/README.md`](docs/README.md) for the complete documentation index and quick navigation.
 
- <h4 align="center">
-  <a href="https://github.com/amidabuddha/consoleChatGPT/blob/main/LICENSE.md">
-  <img src="https://img.shields.io/github/license/amidabuddha/consoleChatGPT" alt="Released under the Apache license." />
-  </a>
-  <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Working on Python 3.10+" />
-  <img src="https://img.shields.io/github/stars/amidabuddha/consoleChatGPT"/>
-  <img src="https://img.shields.io/github/issues/amidabuddha/consoleChatGPT"/>
-  <img src="https://img.shields.io/github/forks/amidabuddha/consoleChatGPT"/>
-  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-blue"/>
-</h4>
+## Directory Structure
 
-</div>
+```
+.
+├── docs/                   # 📖 Master documentation index
+│   └── README.md          # Complete guide to all documentation
+├── .claude/               # Framework core files
+│   ├── best_practices/    # 📋 Technology-specific best practices (12 guides)
+│   │   ├── nodejs-best-practices.md
+│   │   ├── python-best-practices.md
+│   │   ├── java-best-practices.md
+│   │   ├── angular-best-practices.md
+│   │   ├── php-best-practices.md
+│   │   ├── apostrophe-best-practices.md
+│   │   ├── docker-best-practices.md
+│   │   ├── api-design-best-practices.md
+│   │   ├── database-best-practices.md
+│   │   ├── security-best-practices.md
+│   │   ├── logging-monitoring-best-practices.md
+│   │   └── mcp-best-practices.md
+│   ├── commands/          # 🛠️ Operational commands (4 commands)
+│   │   ├── health-check.md    # Session health monitoring
+│   │   ├── jira.md           # Task management
+│   │   ├── document.md       # Documentation commands
+│   │   └── fix-github-issues.md
+│   ├── config/            # ⚙️ Team configurations
+│   │   ├── examples/      # Sample team configurations
+│   │   ├── README.md      # Configuration guide
+│   │   ├── config-schema.yaml
+│   │   ├── default-config.yaml
+│   │   └── load-config.sh
+│   ├── guides/            # 📚 How-to guides
+│   │   ├── customization-guide.md
+│   │   └── session-management-guide.md
+│   ├── templates/         # 📝 Reusable templates (8 templates)
+│   │   ├── task-spec-template.md
+│   │   ├── handover-template.md
+│   │   ├── pull-request-template.md
+│   │   ├── code-review-checklist.md
+│   │   ├── custom-best-practice-template.md
+│   │   ├── best-practice-addendum-template.md
+│   │   ├── team-quick-reference.md
+│   │   └── migration-guide-template.md
+│   └── session/           # Session state management
+│       └── current-session.yaml
+├── claude_code_changes/    # Session change tracking
+├── scripts/                # Utility scripts
+│   ├── setup-dev-env.sh   # Development environment setup
+│   ├── customize-framework.sh  # Interactive customization tool
+│   └── validate-best-practices.sh  # Validation tool for customizations
+├── tasks/                  # Task specifications and implementations
+│   └── specs/             # Task specification documents
+├── CLAUDE.md              # Main Claude Code guidelines
+└── README.md              # This file
+```
 
----
+## Quick Start
 
-# Table of Contents
-
-- [Features](#features)
-- [Installation and Usage](#installation-and-usage)
-- [Examples](#examples)
-- [Contributing](#contributing)
-
----
-
-**DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI, DeepSeek, Alibaba, Inception, or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibaba, Inception or their subsidiaries in any form.
-
----
-
-## Features
-
-- :new: [**OpenAI Responses API**](https://platform.openai.com/docs/api-reference/responses) supported. :new:
-- :new: Run any OpenAI SDK compatible model - just add the model structure with the relevant `model_name` and `base_url` to the `config.toml` file. :new:
-- :star: Run [**Ollama**](https://ollama.com) hosted models locally. _Ollama should be installed and the selected models already downloaded_  :star:
-- :star: [**Anthropic Prompt caching**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) Fully supported :star:
-- :star: [Model Context Protocol (MCP)](https://modelcontextprotocol.io) supported! If you are already using MCP servers just copy your `claude_desktop_config.json` to the root directory and rename to `mcp_config.json` to start using with any model! :star:
-- Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The source code is available in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts)
-- Streaming with all supported models, disabled by default, may be enabled in `settings` menu
-- [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported
-- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
-- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
-  how the app works. Also supported in-app via the `settings` command.
-- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
-  interactive experience.
-- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
-  conversation.
-- **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
-- **Image input**: with selected models.
-- **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
-- **Conversation History**: Review previous interactions and save conversations for future reference, providing context
-  and continuity.
-- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of
-  progress.
-- **A nice team**: Actively adding features, open for ideas and fixing bugs.
-
-Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance
-personalization, control, and convenience.
-
----
-
-## Installation and Usage
-
-> The script works fine on Linux and MacOS terminals. For Windows it's recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
-
-1. Clone the repository:
-
-   ```shell
-   git clone https://github.com/amidabuddha/console-chat-gpt.git
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd claude_code_stuffs
    ```
 
-2. Go inside the folder:
-
-   ```shell
-   cd console-chat-gpt
+2. **Set up development environment:**
+This only applies if it is a new project and fits with your workflow.
+   ```bash
+   ./scripts/setup-dev-env.sh
    ```
 
-3. Install the necessary dependencies:
-
-   ```shell
-   python3 -m pip install -r requirements.txt
+3. **Customize for your team (optional but recommended):**
+   ```bash
+   ./scripts/customize-framework.sh
    ```
 
-4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), [DeepSeek](https://platform.deepseek.com/api_keys), [Alibaba](https://bailian.console.alibabacloud.com/?apiKey=1#/api-key), [Inception](https://platform.inceptionlabs.ai/dashboard/api-keys) depending on your selected LLM.
+4. **Review the main guidelines:**
+   - Read `CLAUDE.md` for core development principles
+   - Check relevant technology-specific guides in `.claude/best_practises/`
 
-5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the `settings` in-app menu as per your needs.
+## Key Features
 
-6. Run the executable:
+### 🎯 Session Management System
 
-   ```shell
-   python3 main.py
+- **Health Monitoring**: Automatic tracking of conversation length with visual indicators
+- **Smart Handovers**: Generate comprehensive handover documents when approaching limits
+- **Mode Switching**: DEBUG, BUILD, REVIEW, LEARN, RAPID modes for different contexts
+- **Scope Tracking**: MICRO to EPIC classifications for work complexity
+- **Command Triggers**: `<Health-Check>`, `<Handover01>`, mode/scope commands
+- **State Persistence**: Maintains context across sessions in `.claude/session/`
+
+### 🛠 Technology-Specific Best Practices
+
+Comprehensive guides for:
+- **Frontend**: Angular, JavaScript/TypeScript
+- **Backend**: Node.js, Python, PHP, Java
+- **Infrastructure**: Docker, Database (SQL/NoSQL)
+- **API Development**: RESTful APIs, OpenAPI/Swagger
+- **CMS**: ApostropheCMS
+- **Security**: OWASP compliance, authentication, encryption
+- **Monitoring**: Logging strategies, performance monitoring
+- **MCP Tools**: Model Context Protocol, version management, tool integration
+
+### 📋 Workflow Management
+
+- **JIRA Integration**: Structured task management
+- **Git Workflow**: Branch naming, commit conventions
+- **Change Tracking**: Automatic session documentation
+- **Test-Driven Development**: TDD methodology and practices
+
+### 🔒 Security & Quality
+
+- **Security Best Practices**: OWASP Top 10 compliance checklist
+- **Code Quality**: Linting, testing, and review processes
+- **API Security**: Authentication, rate limiting, CORS
+- **Database Security**: Query parameterization, encryption
+
+### ⚙️ Team Configuration
+
+- **Config Directory**: `.claude/config/` stores all team-specific settings
+- **Example Configs**: Pre-built configurations for startups, enterprises, and open source
+- **Config Schema**: Validation schema for configuration files
+- **Config Loader**: Shell script to load configurations as environment variables
+
+### 📄 Customization Templates
+
+- **Best Practice Template**: Create new technology-specific best practices
+- **Addendum Template**: Add team customizations without modifying originals
+- **Quick Reference**: One-page team reference guide
+- **Migration Guide**: Template for teams transitioning from other frameworks
+
+### 📊 Logging & Monitoring
+
+Environment-specific logging strategies:
+- **Development**: Verbose console and file logging
+- **Production**: Error-only logging with monitoring integration
+
+## Usage Guide
+
+### Customizing Best Practices
+
+The best practices files in `.claude/best_practices/` provide comprehensive defaults based on industry standards. However, these files are meant to be customized to match your team's specific workflows and requirements. 
+
+**🚀 Quick Start**: Run `./scripts/customize-framework.sh` for an interactive setup that customizes practices based on your team's needs.
+
+**📖 Manual Customization**: See the [Customization Guide](.claude/guides/customization-guide.md) for detailed instructions.
+
+**✅ Validate Customizations**: Run `./scripts/validate-best-practices.sh` to check your customizations for errors and consistency.
+
+Feel free to edit these files to:
+- Add project-specific conventions
+- Modify guidelines to match your team's practices
+- Include company-specific requirements
+- Remove sections that don't apply to your use case
+
+### Session Management
+
+When working with Claude Code, the session management system helps prevent conversation limit issues:
+
+1. **Start with a health check:**
+   ```
+   <Health-Check>
+   ```
+   This shows your session status and sets appropriate mode/scope.
+
+2. **Monitor session health:**
+   - 🟢 Healthy (0-30 messages): Continue normally
+   - 🟡 Approaching (31-45 messages): Plan for handover
+   - 🔴 Handover Now (46+ messages): Generate handover immediately
+
+3. **Switch modes as needed:**
+   ```
+   MODE: DEBUG      # For troubleshooting
+   MODE: BUILD      # For implementation
+   MODE: REVIEW     # For code review
+   MODE: RAPID      # For quick responses
    ```
 
-   > Pro-tip:
-   > Create an alias for the executable to run from anywhere.
+4. **Generate handover when needed:**
+   ```
+   <Handover01>
+   ```
+   This creates a comprehensive handover document for the next session.
 
-7. Use the `help` command within the chat to check the available options.
+For detailed information, see the [Session Management Guide](.claude/guides/session-management-guide.md).
 
-8. Enjoy
+### Working on a New Task
 
----
+1. **Start with session initialization:**
+   ```
+   <Health-Check>
+   Please retrieve the task from Jira MCP with the ID TASK-123 and proceed to create documentation for it.
+   ```
 
-### Configurable Options in `config.toml`
+2. **Create implementation:**
+   ```
+   Create implementation from TASK-123
+   ```
 
-| [chat.defaults]  | Main properties to generate a chat completion/response. |
-|-|-|
-| temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. May be set for each new chat session if `adjust_temperature` in [chat.features] is **true**. |
-| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. May be set for each new chat session if `role_selector` in [chat.features] is **true**. |
-| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. May be set for each new chat session if `model_selector` in [chat.features] is **true**. |
+3. **Track your changes:**
+   - Claude Code automatically creates session files in `claude_code_changes/`
+   - Format: `claude_changes_YYYY-MM-DD_HH-MM.txt`
+   - Session state tracked in `.claude/session/current-session.yaml`
 
-| [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
-|-|-|
-| model_selector | A selection list of models available in section [chat.models] of `config.toml`. When **true** this list may be modified at the beginning of each new chat session. |
-| adjust_temperature | Prompt to change the temperature for each chat session. When **true** the temperature value may be modified at the beginning of each new chat session. |
-| role_selector | A selection list of roles available in section [chat.roles] of `config.toml`. When **true** this list may be modified at the beginning of each new chat session.|
-| save_chat_on_exit | When **true** automatically save the chat session upon using the `exit` command in chat.|
-| continue_chat | When **true** offers a list of previously saved chat sessions to be continued in a new session. The list may be modified from within a chat session via the `chats` command.|
-| ~~debug~~ | Application logging - not yet implemented. |
-| disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. This is targeted at new users and may be disabled by setting to **false**. |
-| assistant_mode | Enable **Open AI Assistants API** as an available selection upon chat initialization. |
-| ai_managed | Enable **AI Managed mode** to allow a model to automatically select the best model according to your prompt. Detailed settings below. |
-| streaming | If set to **true**, the model response data will be streamed to the client. |
-| mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
+4. **Test your code in real-world cases**
+   ```
+   Do your usual testing. Since I recommend always having a separate branch for each task, you can easily view the changes using Git Diff in any visual editor. This allows you to see what needs testing, what has been affected, and to apply your programming skills accordingly. Of course, test it and code it until it works.
+   ```
 
-| [chat.managed] | Settings dedicated to the AI Managed mode. *Not available to be edited from within a chat session*. |
-|-|-|
-| assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_role | Custom instruction to the evaluation model. *Change this only if you know exactly what you are doing!* |
-| assistant_generalist | Your preferred general purpose model, typically the one you use the most for any type of queries. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_fast | When speed is preferred to accuracy. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
-| prompt | When **AI Managed mode** is used frequently the Y/N prompt may be disabled by changing this to **false**. |
+5. **Linting and retest**
+   ```
+   Sometimes linting modifies files, so you will need to review the changes and retest your code.
+   ```
 
----
+6. **Commit**
+   ```
+   Commit your changes, push them, and create a pull request (PR) in Git, or merge directly into the develop/main branch (depending on your workflow). You can also request a version tag if needed. Use any Git commands you typically work with.
+   ```
 
-## Examples
+6. **Create Jira Comment/Change status**
+   ```
+   Ask Claude to add a comment summarizing the work you’ve done. You can also ask to log the time spent or change the task status so it moves to QA for review.
+   ```
 
-- Prompt example:
+## Best Practices Summary
 
-  ![example_python](examples/python_for_loop.gif)
+### Git Commits
+- Only commit when explicitly requested
+- Use clear, descriptive commit messages
+- Include task IDs in branch names
 
-- Markdown visualization example:
+### Code Quality
+- Run linters before committing
+- Write tests before implementation (TDD)
+- Document API endpoints
+- Follow technology-specific conventions
 
-  ![example_markdown](examples/markdown_preview.gif)
+### Security
+- Never commit secrets or credentials
+- Use environment variables for configuration
+- Implement proper authentication and authorization
+- Follow OWASP guidelines
 
-- Settings and help:
-
-  ![example_settings](examples/settings_preview.gif)
-
-> You can find more examples on our [Examples page](EXAMPLES.md).
-
----
+### Logging
+- Development: Console + error logs for debugging
+- Production: No console output unless configured
+- Use structured logging with appropriate levels
+- Include request IDs for tracing
 
 ## Contributing
 
-Contributions are welcome! If you find any bugs, have feature requests, or want to contribute improvements, please open an issue or submit a pull request.
+1. Follow the established patterns in existing files
+2. Update relevant documentation when adding features
+3. Test all changes thoroughly
+4. Create pull requests with detailed descriptions
+
+## Resources
+
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OpenAPI Specification](https://swagger.io/specification/)
+
+## License
+
+[Your License Here]
+
+---
+
+For questions or issues, please refer to the project's issue tracker or contact the development team.

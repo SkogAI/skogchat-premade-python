@@ -1,3 +1,4 @@
+import asyncio
 from unichat import MODELS_LIST, UnifiedChatApi
 from unichat.api_helper import openai
 
@@ -107,6 +108,12 @@ def chat(console, data, managed_user_prompt) -> None:
                     continue
                 case "break":
                     break
+                case "multi_agent_broadcast":
+                    asyncio.run(handle_multi_agent_broadcast(user_input["content"], conversation, temperature))
+                    continue
+                case "multi_agent_chain":
+                    asyncio.run(handle_multi_agent_chain(user_input["content"], conversation, temperature))
+                    continue
                 case _:
                     if model_title.startswith("anthropic") and cached is True:
                         user_input["content"], cached = handled_user_input
@@ -197,3 +204,130 @@ def chat(console, data, managed_user_prompt) -> None:
             if conversation:
                 conversation.pop(-1)
             continue
+
+
+async def handle_multi_agent_broadcast(user_message: str, conversation: list, temperature: float):
+    """Handle broadcast command to multiple agents"""
+    from console_gpt.multi_agent import MultiAgentHandler
+    from console_gpt.menus.skeleton_menus import base_multiselect_menu, base_checkbox_menu
+    
+    handler = MultiAgentHandler()
+    
+    # Let user choose group or individual models
+    choice = base_multiselect_menu(
+        "Multi-Agent Broadcast",
+        ["Use Group", "Select Individual Models"],
+        "How would you like to broadcast your message?",
+        "Use Group"
+    )
+    
+    if choice == "Use Group":
+        groups = handler.list_available_groups()
+        if not groups:
+            custom_print("error", "No agent groups configured. Please check your config.toml")
+            return
+        
+        selected_group = base_multiselect_menu(
+            "Agent Groups",
+            groups,
+            "Select an agent group:",
+            groups[0] if groups else None
+        )
+        
+        models = handler.get_group_models(selected_group)
+        custom_print("info", f"Broadcasting to {selected_group}: {', '.join(models)}")
+        
+    else:
+        available_models = handler.get_available_models()
+        if not available_models:
+            custom_print("error", "No models configured. Please check your config.toml")
+            return
+            
+        models = base_checkbox_menu(
+            available_models,
+            " Select models to broadcast to:",
+            default_checked=available_models[:3]  # Default to first 3 models
+        )
+        
+        if not models:
+            custom_print("info", "No models selected.")
+            return
+    
+    # Extract system prompt from conversation
+    system_prompt = None
+    if conversation and conversation[0].get("role") == "system":
+        system_prompt = conversation[0]["content"]
+    
+    # Broadcast the message
+    result = await handler.broadcast_message(user_message, models, temperature, system_prompt)
+    
+    # Display results
+    handler.display_multi_agent_results(result, show_reasoning=True)
+    
+    # Add to conversation for context
+    summary = f"Broadcasted to {len(models)} agents: {result.successful_count} successful, {result.failed_count} failed"
+    conversation.append({"role": "assistant", "content": f"[Multi-Agent Broadcast] {summary}"})
+
+
+async def handle_multi_agent_chain(user_message: str, conversation: list, temperature: float):
+    """Handle chain command through multiple agents"""
+    from console_gpt.multi_agent import MultiAgentHandler
+    from console_gpt.menus.skeleton_menus import base_multiselect_menu, base_checkbox_menu
+    
+    handler = MultiAgentHandler()
+    
+    # Let user choose group or individual models
+    choice = base_multiselect_menu(
+        "Multi-Agent Chain",
+        ["Use Group", "Select Individual Models"],
+        "How would you like to chain your message?",
+        "Use Group"
+    )
+    
+    if choice == "Use Group":
+        groups = handler.list_available_groups()
+        if not groups:
+            custom_print("error", "No agent groups configured. Please check your config.toml")
+            return
+        
+        selected_group = base_multiselect_menu(
+            "Agent Groups",
+            groups,
+            "Select an agent group:",
+            groups[0] if groups else None
+        )
+        
+        models = handler.get_group_models(selected_group)
+        custom_print("info", f"Chaining through {selected_group}: {', '.join(models)}")
+        
+    else:
+        available_models = handler.get_available_models()
+        if not available_models:
+            custom_print("error", "No models configured. Please check your config.toml")
+            return
+            
+        models = base_checkbox_menu(
+            available_models,
+            " Select models to chain through (in order):",
+            default_checked=available_models[:3]  # Default to first 3 models
+        )
+        
+        if not models:
+            custom_print("info", "No models selected.")
+            return
+    
+    # Extract system prompt from conversation
+    system_prompt = None
+    if conversation and conversation[0].get("role") == "system":
+        system_prompt = conversation[0]["content"]
+    
+    # Chain through the models
+    result = await handler.sequential_chain(user_message, models, temperature, system_prompt)
+    
+    # Display results
+    handler.display_multi_agent_results(result, show_reasoning=True)
+    
+    # Add final result to conversation
+    if result.responses and result.responses[-1].content:
+        final_response = result.responses[-1].content
+        conversation.append({"role": "assistant", "content": f"[Multi-Agent Chain Result] {final_response}"})

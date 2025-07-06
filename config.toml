@@ -9,6 +9,7 @@ fallback_char = "?"
 temperature = 1
 system_role = "assistant"
 model = "gemini-pro"
+username = "skogix"
 
 [chat.managed]
 assistant = "gpt-4o-mini"
@@ -20,28 +21,18 @@ assistant_coder = "o4-mini"
 prompt = true
 
 [chat.groups]
-# coding_team = ["gpt-4o", "anthropic-sonnet-3", "deepseek-chat", "o4-mini"]
-# research_team = ["gpt-41", "anthropic-sonnet-4", "gemini-pro", "qwen-max"]
-# creative_team = ["gpt-4o", "anthropic-opus-4", "mistral-large", "grok-3"]
-# analysis_team = ["o3", "anthropic-sonnet-4", "qwen-max", "deepseek-reasoner"]
-quick_team = [
-  "gpt-4o-mini",
-  "gemini-pro",
-  "anthropic/claude-3-7-sonnet-latest",
-  "deepseek/deepseek-chat",
-]
-# reasoning_team = ["o3", "o3-mini", "deepseek-reasoner", "qwq-plus"]
+quick_team = [ "anthropic-sonnet-3", "deepseek-chat",]
 
 [chat.features]
-model_selector = false
+model_selector = true
 adjust_temperature = false
-role_selector = true
+role_selector = false
 save_chat_on_exit = true
-continue_chat = true
+continue_chat = false
 debug = false
-disable_intro_help_message = true
+disable_intro_help_message = false
 assistant_mode = true
-ai_managed = false
+ai_managed = true
 streaming = true
 mcp_client = true
 multi_agent = true
@@ -235,7 +226,7 @@ api_key = "sk-or-v1-ad88d25c17f1c1103deb272721ec8f8f2f196ff01e7aed9233c248763fcd
 base_url = "https://openrouter.ai/api/v1"
 model_input_pricing_per_1k = 0.003
 model_max_tokens = 64000
-model_name = "anthropic/claude-3-7-sonnet-latest"
+model_name = "anthropic/claude-3.7-sonnet"
 model_output_pricing_per_1k = 0.015
 reasoning_effort = "medium"
 

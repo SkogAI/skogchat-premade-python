@@ -132,6 +132,20 @@ def command_handler(model_title, model_name, user_input, conversation, cached, t
             for group_name, models in groups.items():
                 custom_print("info", f"  {group_name}: {', '.join(models)}")
             return "continue"
+        case "groupchat" | "group":
+            if not fetch_variable("features", "multi_agent"):
+                custom_print("error", "Multi-agent mode is disabled. Enable it in settings or config.toml")
+                return "continue"
+            from console_gpt.group_chat_interface import start_group_chat_interface
+            start_group_chat_interface()
+            return "continue"
+        case "merge" | "mergeto":
+            if not fetch_variable("features", "multi_agent"):
+                custom_print("error", "Multi-agent mode is disabled. Enable it in settings or config.toml")
+                return "continue"
+            from console_gpt.group_chat_interface import merge_current_conversation
+            merge_current_conversation(conversation)
+            return "continue"
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)
 

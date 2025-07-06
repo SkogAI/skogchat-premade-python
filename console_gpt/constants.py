@@ -17,6 +17,10 @@ help_options = {
     "broadcast": "Send your message to multiple AI agents simultaneously.",
     "chain": "Send your message through multiple AI agents sequentially.",
     "groups": "List available agent groups for multi-agent operations.",
+    "groupchat": "Start a group chat room with you and multiple AI agents.",
+    "group": "Start a group chat room with you and multiple AI agents.",
+    "merge": "Merge current conversation into a group chat room.",
+    "mergeto": "Merge current conversation into a group chat room.",
 }
 
 style = Style(

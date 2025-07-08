@@ -98,8 +98,11 @@ class GroupChatInterface:
         custom_print("ok", f"Room created and joined: {room_name}")
         
         # Add initial system message
-        system_msg = f"Group chat room '{room_name}' created with participants: {', '.join(participants)}"
-        self.group_manager.add_message(room_id, "system", system_msg)
+        system_msg = {
+            "role": "system",
+            "content": f"Group chat room '{room_name}' created with participants: {', '.join(participants)}"
+        }
+        self.group_manager.add_message(room_id, system_msg)
     
     def join_room(self):
         """Join an existing room"""
@@ -185,7 +188,8 @@ class GroupChatInterface:
                     continue
                     
                 # Add user message to room
-                self.group_manager.add_message(self.current_room_id, "user", user_input)
+                user_msg = {"role": "user", "content": user_input}
+                self.group_manager.add_message(self.current_room_id, user_msg)
                 
                 # Get AI agents from room participants (exclude current user)
                 ai_participants = [p for p in room_info['participants'] if p != self.group_manager.current_username]
@@ -221,12 +225,16 @@ class GroupChatInterface:
             # Add AI responses to group chat
             for response in result.responses:
                 if not response.error:
-                    self.group_manager.add_message(
-                        self.current_room_id, 
-                        "assistant", 
-                        response.content,
-                        model_name=response.model_name
-                    )
+                    ai_msg = {
+                        "role": "assistant",
+                        "content": response.content
+                    }
+                    if response.reasoning_content:
+                        ai_msg["reasoning_content"] = response.reasoning_content
+                    if response.tool_calls:
+                        ai_msg["tool_calls"] = response.tool_calls
+                    
+                    self.group_manager.add_message(self.current_room_id, ai_msg)
                     
                     # Display response
                     self.console.print(f"\n[bold blue][{response.model_name}][/bold blue]")

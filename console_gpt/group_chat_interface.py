@@ -10,7 +10,7 @@ from rich.markdown import Markdown
 from rich.prompt import Prompt, Confirm
 from datetime import datetime
 
-from console_gpt.group_chat import GroupChatManager, GroupChatMessage
+from console_gpt.group_chat import GroupChatManager
 from console_gpt.multi_agent import MultiAgentHandler
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.menus.skeleton_menus import base_multiselect_menu, base_checkbox_menu

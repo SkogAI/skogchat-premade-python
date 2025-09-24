@@ -19,6 +19,9 @@ assistant_thinker = "o3"
 assistant_coder = "o4-mini"
 prompt = true
 
+[chat.groups]
+quick_team = [ "anthropic-sonnet-3", "deepseek-chat", "qwen-max",]
+
 [chat.features]
 model_selector = false
 adjust_temperature = false

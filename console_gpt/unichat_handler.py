@@ -5,6 +5,7 @@ from rich.markdown import Markdown
 
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.prompts.assistant_prompt import assistance_reply
+from console_gpt.prompts.image_prompt import save_image
 from mcp_servers.mcp_tcp_client import MCPClient
 
 
@@ -33,6 +34,11 @@ def handle_streaming_completion(model_name, response_stream, conversation):
 
             if hasattr(delta, "reasoning_content") and delta.reasoning_content:
                 reasoning_content += delta.reasoning_content
+                rmd = Markdown(reasoning_content, code_theme="dracula")
+                live.update(rmd)
+
+            if hasattr(delta, "reasoning") and delta.reasoning:
+                reasoning_content += delta.reasoning
                 rmd = Markdown(reasoning_content, code_theme="dracula")
                 live.update(rmd)
 
@@ -128,6 +134,10 @@ def handle_non_streaming_completion(model_name, response, conversation):
     reasoning_content = getattr(message, "reasoning_content", None)
     if reasoning_content:
         assistance_reply(reasoning_content, f"{model_name} Reasoning")
+
+    reasoning = getattr(message, "reasoning", None)
+    if reasoning:
+        assistance_reply(reasoning, f"{model_name} Reasoning")
 
     # Handle content
     content = getattr(message, "content", None)
@@ -248,7 +258,8 @@ def response_parser(output):
     dict_output = []
     reasoning_output = []
     for o in output:
-        if o.type == "reasoning":
+        if o.type not in ("message", "function_call", "image_generation_call"):
+            markdown_print(f"> Triggered: `{o.type}`.")
             reasoning_output.append(o.to_dict())
         if o.type == "message":
             assistant_response = {
@@ -258,6 +269,7 @@ def response_parser(output):
             dict_output.append(assistant_response)
         if o.type == "function_call":
             dict_output.extend(reasoning_output)
+            reasoning_output = []
             dict_output.append(o.model_dump())
             tool_name = o.name
             function_arguments = o.arguments
@@ -282,4 +294,7 @@ def response_parser(output):
                     "output": str(e),
                 }
                 dict_output.append(result)
+        if o.type == "image_generation_call":
+            image_base64 = o.result
+            save_image(image_base64)
     return dict_output

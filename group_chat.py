@@ -21,11 +21,11 @@ from console_gpt.prompts.user_prompt import user_prompt
 
 
 class GroupChat:
-    def __init__(self, messages_file="group_messages.jsonl"):
+    def __init__(self, messages_file="group_messages.skogchat"):
         self.messages_file = Path(messages_file)
         self.console = Console()
         self.last_position = 0
-        
+
         # Create messages file if it doesn't exist
         if not self.messages_file.exists():
             self.messages_file.touch()
@@ -51,17 +51,21 @@ class GroupChat:
             pass  # File doesn't exist yet
             
     def display_message(self, message):
-        """Display a message using existing skogai display functions."""
-        role = message.get("role", "assistant")
+        """Display a message from .skogchat format or legacy format."""
+        # Support both .skogchat format (from, to, eid, created-at, parent)
+        # and legacy format (role, name)
+
+        # Get sender - try 'from' first (skogchat), fall back to 'name' or 'role'
+        sender = message.get("from") or message.get("name") or message.get("role", "assistant")
         content = message.get("content", "")
-        name = message.get("name", "assistant")
-        
-        if role == "user":
-            # Display user message (you could customize this)
-            custom_print("user", f"{name}: {content}")
+
+        # Ignore skogchat fields we don't need: eid, to, created-at, parent
+
+        if sender == "user":
+            custom_print("user", f"{sender}: {content}")
         else:
             # Display assistant/other messages using existing function
-            assistance_reply(content, name)
+            assistance_reply(content, sender)
             
     def send_message(self, content, agent_name):
         """Send a message via skogcli agent send command."""
@@ -111,7 +115,7 @@ class GroupChat:
         custom_print("info", "Group Chat started. Type 'quit' to exit.")
         custom_print("info", f"Watching: {self.messages_file.resolve()}")
         custom_print("info", "Format: '@agent message' or just 'message' (defaults to claude)")
-        custom_print("info", "Add messages: echo '{\"role\": \"assistant\", \"content\": \"hi\", \"name\": \"claude\"}' >> group_messages.jsonl")
+        custom_print("info", "Supports .skogchat format: {\"from\": \"claude\", \"to\": \"user\", \"content\": \"hi\", ...}")
         
         try:
             while True:
